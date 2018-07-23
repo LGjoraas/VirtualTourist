@@ -56,7 +56,8 @@ class TravelLocationsMapVC: UIViewController, UIGestureRecognizerDelegate, MKMap
         annotation.coordinate = touchCoordinate
         
         self.mapView.addAnnotation(annotation)
-    
+        
+        locationPinPressed()
         
     }
     
@@ -74,10 +75,20 @@ class TravelLocationsMapVC: UIViewController, UIGestureRecognizerDelegate, MKMap
         present(albumVC, animated: true, completion: nil)
     }
     
-    
+   
     
     @IBAction func editButtonPressed(_ sender: Any) {
+       
         
+        removeAnnotationFromMap()
+        
+    }
+    
+    
+    func removeAnnotationFromMap() {
+        addTapandHoldGestureRecognizer()
+        let annotation = MKPointAnnotation()
+        self.mapView.removeAnnotation(annotation)
     }
     
     
