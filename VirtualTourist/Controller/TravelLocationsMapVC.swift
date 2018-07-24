@@ -17,7 +17,7 @@ class TravelLocationsMapVC: UIViewController, UIGestureRecognizerDelegate, MKMap
     
     
     // MARK: Properties
-    
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,22 +31,22 @@ class TravelLocationsMapVC: UIViewController, UIGestureRecognizerDelegate, MKMap
            let latitudeSpan = UserDefaults.standard.object(forKey: "latitudeDelta"),
            let longitudeSpan = UserDefaults.standard.object(forKey: "longitudeDelta") {
             
-            let center: CLLocationCoordinate2D = CLLocationCoordinate2DMake(latitude as! Double, longitude as! Double)
-            let span: MKCoordinateSpan = MKCoordinateSpanMake(latitudeSpan as! Double, longitudeSpan as! Double)
-            let region: MKCoordinateRegion = MKCoordinateRegionMake(center, span)
+            let center = CLLocationCoordinate2DMake(latitude as! Double, longitude as! Double)
+            let span = MKCoordinateSpanMake(latitudeSpan as! Double, longitudeSpan as! Double)
+            let region = MKCoordinateRegionMake(center, span)
             self.mapView.setRegion(region, animated: true)
         }
     }
     
-    
     func addTapandHoldGestureRecognizer() {
-        let tapAndHoldPress = UILongPressGestureRecognizer(target: self, action: #selector(handleTapped(sender:)))
+        let tapAndHoldPress = UILongPressGestureRecognizer(target: self, action: #selector(tapAndHoldPressed(sender:)))
         tapAndHoldPress.minimumPressDuration = 0.5
         tapAndHoldPress.delegate = self
         self.mapView.addGestureRecognizer(tapAndHoldPress)
     }
+
     
-    @IBAction func handleTapped(sender: UILongPressGestureRecognizer)  {
+    @IBAction func tapAndHoldPressed(sender: UILongPressGestureRecognizer)  {
         
         // Get the coordinates of where on the map the user touched
         let touchPoint = sender.location(in: mapView)
@@ -54,10 +54,8 @@ class TravelLocationsMapVC: UIViewController, UIGestureRecognizerDelegate, MKMap
         
         let annotation = MKPointAnnotation()
         annotation.coordinate = touchCoordinate
-        
         self.mapView.addAnnotation(annotation)
         
-        locationPinPressed()
         
     }
     
@@ -69,30 +67,19 @@ class TravelLocationsMapVC: UIViewController, UIGestureRecognizerDelegate, MKMap
         UserDefaults.standard.set(self.mapView.region.span.longitudeDelta, forKey: "longitudeDelta")
     }
     
-    func locationPinPressed() {
-        // present the PhotoAlbumView when pressed
-        let albumVC = PhotoAlbumView()
-        present(albumVC, animated: true, completion: nil)
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        // transfer data to PhotoAlbumView and then present it
+        guard let albumVC = storyboard?.instantiateViewController(withIdentifier: "albumVC") as? PhotoAlbumView else { return }
+        if let annotation = view.annotation {
+            albumVC.latitude = annotation.coordinate.latitude
+            albumVC.longitude = annotation.coordinate.longitude
+            albumVC.annotation = annotation as? MKPointAnnotation
+        }
+        self.navigationController?.pushViewController(albumVC, animated: true)
     }
-    
-   
-    
-    @IBAction func editButtonPressed(_ sender: Any) {
-       
-        
-        removeAnnotationFromMap()
-        
-    }
-    
-    
-    func removeAnnotationFromMap() {
-        addTapandHoldGestureRecognizer()
-        let annotation = MKPointAnnotation()
-        self.mapView.removeAnnotation(annotation)
-    }
-    
-    
+}
+
+extension TravelLocationsMapVC {
     
     
 }
-

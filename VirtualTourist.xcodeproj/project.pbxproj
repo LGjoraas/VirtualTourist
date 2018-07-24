@@ -92,6 +92,7 @@
 		A58C7F78210545A90000C0C7 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				A5957DAC21063D79003D649C /* PhotoAlbumViewCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -102,7 +103,6 @@
 				A58C7F64210544D20000C0C7 /* TravelLocationsMapVC.swift */,
 				A5957DAE21065A53003D649C /* FlickrAPI.swift */,
 				A5957DA921063B88003D649C /* PhotoAlbumView.swift */,
-				A5957DAC21063D79003D649C /* PhotoAlbumViewCell.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
