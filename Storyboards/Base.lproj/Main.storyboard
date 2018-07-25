@@ -80,14 +80,14 @@
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="RtG-Rj-NUz">
                                 <rect key="frame" x="0.0" y="264" width="375" height="403"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Gut-2F-OgJ">
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="5" minimumInteritemSpacing="2" id="Gut-2F-OgJ">
                                     <size key="itemSize" width="120" height="120"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
-                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="4F6-US-ytN" customClass="PhotoAlbumViewCell" customModule="VirtualTourist" customModuleProvider="target">
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="photoCell" id="4F6-US-ytN" customClass="PhotoAlbumViewCell" customModule="VirtualTourist" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="0.0" width="120" height="120"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
@@ -105,8 +105,15 @@
                                             <constraint firstAttribute="bottom" secondItem="ZT2-H2-Mfp" secondAttribute="bottom" id="H2s-Cq-JTk"/>
                                             <constraint firstItem="ZT2-H2-Mfp" firstAttribute="top" secondItem="4F6-US-ytN" secondAttribute="top" constant="5" id="fII-Ut-4i3"/>
                                         </constraints>
+                                        <connections>
+                                            <outlet property="imageView" destination="ZT2-H2-Mfp" id="BYE-xp-P79"/>
+                                        </connections>
                                     </collectionViewCell>
                                 </cells>
+                                <connections>
+                                    <outlet property="dataSource" destination="RaQ-iH-lfp" id="1wm-1m-xkm"/>
+                                    <outlet property="delegate" destination="RaQ-iH-lfp" id="w06-Bl-r8y"/>
+                                </connections>
                             </collectionView>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bJO-dv-vDM">
                                 <rect key="frame" x="0.0" y="617" width="375" height="50"/>
@@ -136,6 +143,7 @@
                         <viewLayoutGuide key="safeArea" id="cd9-qt-I7R"/>
                     </view>
                     <connections>
+                        <outlet property="collectionView" destination="RtG-Rj-NUz" id="19E-qE-5Uc"/>
                         <outlet property="mapView" destination="PFA-ln-PLn" id="Ced-4I-7Lf"/>
                         <outlet property="newCollectionButton" destination="yaz-fU-kBP" id="wjp-eR-po1"/>
                     </connections>
