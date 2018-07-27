@@ -15,7 +15,7 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate {
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var newCollectionButton: UIBarButtonItem!
     @IBOutlet weak var collectionView: UICollectionView!
-    
+    @IBOutlet weak var noImagesLabel: UILabel!
     
     // MARK: Properties
     var latitude: Double?
@@ -34,6 +34,8 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        newCollectionButton.isEnabled = false
+        
         if let latitude = latitude, let longitude = longitude, let annotation = annotation {
             let center = CLLocationCoordinate2DMake(latitude, longitude)
             let span = MKCoordinateSpanMake(latitudeSpan, longitudeSpan)
@@ -50,6 +52,7 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate {
             if success == true {
                 performUIUpdatesOnMain {
                     self.collectionView.reloadData()
+                    self.newCollectionButton.isEnabled = true
                 }
             }
         }
@@ -57,11 +60,14 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate {
     
     @IBAction func newCollectionButttonPressed(_ sender: Any) {
         
+        newCollectionButton.isEnabled = false
+        
         // need to disable the collection button pressing in this case***!!!
         getFlickrImages { (success) in
             if success == true {
                 performUIUpdatesOnMain {
                     self.collectionView.reloadData()
+                    self.newCollectionButton.isEnabled = true
                 }
             }
         }
@@ -86,6 +92,11 @@ extension PhotoAlbumView: UICollectionViewDelegate, UICollectionViewDataSource {
         }
         return cell
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        self.imageURLArray.remove(at: indexPath.row)
+        collectionView.deleteItems(at: [indexPath])
+    }
 }
 
 
@@ -95,14 +106,15 @@ extension PhotoAlbumView {
     
     // function to load images from flickr to put into an array
     private func getFlickrImages(completionHander: @escaping (_ success: Bool) -> Void) {
+        
         let methodParameters = [
             Constants.FlickrParameterKeys.Method: Constants.FlickrParameterValues.SearchMethod,
             Constants.FlickrParameterKeys.APIKey: Constants.FlickrParameterValues.APIKey,
             Constants.FlickrParameterKeys.BoundingBox: bboxString(),
             Constants.FlickrParameterKeys.SafeSearch: Constants.FlickrParameterValues.UseSafeSearch,
             Constants.FlickrParameterKeys.Extras: Constants.FlickrParameterValues.MediumURL,
-            Constants.FlickrParameterKeys.NumberOfPictures:
-                Constants.FlickrParameterValues.PicturesToRetrieve,
+            //Constants.FlickrParameterKeys.NumberOfPictures:
+                //Constants.FlickrParameterValues.PicturesToRetrieve,
             Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.ResponseFormat,
             Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback
         ]
@@ -115,6 +127,9 @@ extension PhotoAlbumView {
     }
     
     private func getImagesFromFlickrBySearch(_ methodParameters: [String: AnyObject], completionHander: @escaping (_ success: Bool) -> Void) {
+        
+        // initialize imageURLArray to have zero elements
+        self.imageURLArray = []
         
         // create session and request
         let request = URLRequest(url: flickrURLFromParameters(methodParameters))
@@ -149,7 +164,7 @@ extension PhotoAlbumView {
                 print("Could not parse the data as JSON: '\(data)'")
                 return
             }
-            //print("Parsed result: \(parsedResult)")
+            
             
             /* GUARD: Did Flickr return an error (stat != ok)? */
             guard let stat = parsedResult[Constants.FlickrResponseKeys.Status] as? String, stat == Constants.FlickrResponseValues.OKStatus else {
@@ -169,7 +184,12 @@ extension PhotoAlbumView {
                 return
             }
             
-            //print(photosDictionary)
+            if photosArray.count == 0 {
+                performUIUpdatesOnMain {
+                    self.view.bringSubview(toFront: self.noImagesLabel)
+                }
+            }
+            
             for index in 0..<photosArray.count {
                 let photoDictionary = photosArray[index] as [String: AnyObject]
                 /* GUARD: Does our photo have a key for 'url_m'? */

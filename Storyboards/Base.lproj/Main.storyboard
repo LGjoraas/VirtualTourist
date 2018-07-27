@@ -68,6 +68,15 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No Images Found" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qyX-wc-Xii">
+                                <rect key="frame" x="0.0" y="384" width="375" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="7mk-To-zdy"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="PFA-ln-PLn">
                                 <rect key="frame" x="0.0" y="64" width="375" height="200"/>
                                 <constraints>
@@ -134,11 +143,14 @@
                             <constraint firstItem="cd9-qt-I7R" firstAttribute="trailing" secondItem="RtG-Rj-NUz" secondAttribute="trailing" id="0fN-5F-i8k"/>
                             <constraint firstItem="bJO-dv-vDM" firstAttribute="bottom" secondItem="cd9-qt-I7R" secondAttribute="bottom" id="17z-Is-dyB"/>
                             <constraint firstItem="RtG-Rj-NUz" firstAttribute="top" secondItem="PFA-ln-PLn" secondAttribute="bottom" id="3sg-e8-dvj"/>
+                            <constraint firstItem="qyX-wc-Xii" firstAttribute="leading" secondItem="cd9-qt-I7R" secondAttribute="leading" id="4EO-P2-51w"/>
                             <constraint firstItem="PFA-ln-PLn" firstAttribute="trailing" secondItem="cd9-qt-I7R" secondAttribute="trailing" id="6f6-9q-jf8"/>
                             <constraint firstItem="RtG-Rj-NUz" firstAttribute="leading" secondItem="cd9-qt-I7R" secondAttribute="leading" id="Kuv-65-86B"/>
                             <constraint firstItem="RtG-Rj-NUz" firstAttribute="bottom" secondItem="cd9-qt-I7R" secondAttribute="bottom" id="M6K-aM-tNu"/>
                             <constraint firstItem="PFA-ln-PLn" firstAttribute="top" secondItem="cd9-qt-I7R" secondAttribute="top" id="Mpg-cf-jl2"/>
                             <constraint firstItem="PFA-ln-PLn" firstAttribute="leading" secondItem="cd9-qt-I7R" secondAttribute="leading" id="bgC-gc-p4J"/>
+                            <constraint firstItem="qyX-wc-Xii" firstAttribute="trailing" secondItem="cd9-qt-I7R" secondAttribute="trailing" id="qhd-3g-DA4"/>
+                            <constraint firstItem="qyX-wc-Xii" firstAttribute="top" secondItem="PFA-ln-PLn" secondAttribute="bottom" constant="120" id="vtp-Jz-5u0"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="cd9-qt-I7R"/>
                     </view>
@@ -146,6 +158,7 @@
                         <outlet property="collectionView" destination="RtG-Rj-NUz" id="19E-qE-5Uc"/>
                         <outlet property="mapView" destination="PFA-ln-PLn" id="Ced-4I-7Lf"/>
                         <outlet property="newCollectionButton" destination="yaz-fU-kBP" id="wjp-eR-po1"/>
+                        <outlet property="noImagesLabel" destination="qyX-wc-Xii" id="tvs-Po-MRq"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="O4D-ql-oIo" userLabel="First Responder" sceneMemberID="firstResponder"/>
