@@ -23,6 +23,7 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate {
     let latitudeSpan: Double = 2.0
     let longitudeSpan: Double = 2.0
     var annotation: MKPointAnnotation?
+    var pin: Pin?
     
     let reuseIdentifier = "photoCell"
     
