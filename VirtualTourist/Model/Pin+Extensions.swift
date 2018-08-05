@@ -14,7 +14,7 @@ extension Pin {
     
     static let name = "Pin"
     
-    convenience init(latitude: Double, longitude: Double, context: NSManagedObjectContext) {
+    convenience init(latitude: String, longitude: String, context: NSManagedObjectContext) {
         if let ent = NSEntityDescription.entity(forEntityName: Pin.name, in: context) {
             self.init(entity: ent, insertInto: context)
             self.latitude = latitude

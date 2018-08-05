@@ -26,7 +26,7 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     var annotation: MKPointAnnotation?
     var pin: Pin?
     
-    var dataController:DataController!
+    var dataController:DataController?
     var fetchedResultsController: NSFetchedResultsController<Photo>!
     
     let reuseIdentifier = "photoCell"
@@ -79,8 +79,8 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         // check if pin exists otherwise return
         guard let pin = pin else { return }
         print(pin)
-        let latitude = pin.latitude
-        let longitude = pin.longitude
+        let latitude = Double(pin.latitude!)!
+        let longitude = Double(pin.longitude!)!
         print("LATITUDE = \(latitude)")
         print(longitude)
         let center = CLLocationCoordinate2DMake(latitude, longitude)
@@ -101,7 +101,7 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         fr.predicate = NSPredicate(format: "pin == %@", argumentArray: [pin])
         
         // Create the FetchedResultsController
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: dataController!.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         fetchedResultsController.delegate = self
         
         // Start the fetched results controller
@@ -270,10 +270,12 @@ extension PhotoAlbumView {
     private func bboxString() -> String {
         // ensure bbox is bounded by minimum and maximums
         if let latitude = pin?.latitude, let longitude = pin?.longitude {
-            let minimumLon = max(longitude - Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.0)
-            let minimumLat = max(latitude - Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLatRange.0)
-            let maximumLon = min(longitude + Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.1)
-            let maximumLat = min(latitude + Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLatRange.1)
+            let lat = Double(latitude)!
+            let long = Double(longitude)!
+            let minimumLon = max(long - Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.0)
+            let minimumLat = max(lat - Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLatRange.0)
+            let maximumLon = min(long + Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.1)
+            let maximumLat = min(lat + Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLatRange.1)
             return "\(minimumLon),\(minimumLat),\(maximumLon),\(maximumLat)"
         } else {
             return "0,0,0,0"
