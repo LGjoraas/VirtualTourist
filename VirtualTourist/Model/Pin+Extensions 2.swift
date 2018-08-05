@@ -2,9 +2,10 @@
 //  Pin+Extensions.swift
 //  VirtualTourist
 //
-//  Created by Ryan Gjoraas on 8/5/18.
+//  Created by Ryan Gjoraas on 7/29/18.
 //  Copyright © 2018 Developed by Gjoraas. All rights reserved.
 //
+
 
 import Foundation
 import CoreData
@@ -22,5 +23,4 @@ extension Pin {
             fatalError("Unable to find Entity name!")
         }
     }
-    
 }
