@@ -8,8 +8,9 @@
 
 import UIKit
 import MapKit
+import CoreData
 
-class PhotoAlbumView: UIViewController, MKMapViewDelegate {
+class PhotoAlbumView: UIViewController, MKMapViewDelegate, NSFetchedResultsControllerDelegate {
     
     // MARK: Outlets
     @IBOutlet weak var mapView: MKMapView!
@@ -18,12 +19,15 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate {
     @IBOutlet weak var noImagesLabel: UILabel!
     
     // MARK: Properties
-    var latitude: Double?
-    var longitude: Double?
+    //var latitude: Double?
+    //var longitude: Double?
     let latitudeSpan: Double = 2.0
     let longitudeSpan: Double = 2.0
     var annotation: MKPointAnnotation?
     var pin: Pin?
+    
+    var dataController:DataController!
+    var fetchedResultsController: NSFetchedResultsController<Photo>!
     
     let reuseIdentifier = "photoCell"
     
@@ -34,26 +38,21 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("loaded")
+        // place pin on the mapview
+        putPinOnMap()
+        guard let pin = pin else { return }
+        setUpFetchedControllerWithPin(pin)
         
         newCollectionButton.isEnabled = false
         
-        if let latitude = latitude, let longitude = longitude, let annotation = annotation {
-            let center = CLLocationCoordinate2DMake(latitude, longitude)
-            let span = MKCoordinateSpanMake(latitudeSpan, longitudeSpan)
-            let region = MKCoordinateRegionMake(center, span)
-            self.mapView.setRegion(region, animated: true)
-            self.mapView.addAnnotation(annotation)
-        }
-        else
-        {
-            print("Could not set the map view properly to its region")
-        }
-        
-        getFlickrImages { (success) in
-            if success == true {
-                performUIUpdatesOnMain {
-                    self.collectionView.reloadData()
-                    self.newCollectionButton.isEnabled = true
+        if let photos = pin.photos, photos.count == 0 {
+            getFlickrImages { (success) in
+                if success == true {
+                    performUIUpdatesOnMain {
+                        self.collectionView.reloadData()
+                        self.newCollectionButton.isEnabled = true
+                    }
                 }
             }
         }
@@ -71,6 +70,50 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate {
                     self.newCollectionButton.isEnabled = true
                 }
             }
+        }
+    }
+    
+    
+    // MARK: Helpers
+    func putPinOnMap() {
+        // check if pin exists otherwise return
+        guard let pin = pin else { return }
+        print(pin)
+        let latitude = pin.latitude
+        let longitude = pin.longitude
+        print("LATITUDE = \(latitude)")
+        print(longitude)
+        let center = CLLocationCoordinate2DMake(latitude, longitude)
+        let span = MKCoordinateSpanMake(latitudeSpan, longitudeSpan)
+        let region = MKCoordinateRegionMake(center, span)
+        self.mapView.setRegion(region, animated: true)
+        
+        // create an annotation from the center coordinate
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = center
+        self.mapView.addAnnotation(annotation)
+    }
+    
+    private func setUpFetchedControllerWithPin(_ pin: Pin)
+    {
+        let fr = NSFetchRequest<Photo>(entityName: Photo.name)
+        fr.sortDescriptors = []
+        fr.predicate = NSPredicate(format: "pin == %@", argumentArray: [pin])
+        
+        // Create the FetchedResultsController
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fr, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+        fetchedResultsController.delegate = self
+        
+        // Start the fetched results controller
+        var error: NSError?
+        do {
+            try fetchedResultsController.performFetch()
+        } catch let error1 as NSError {
+            error = error1
+        }
+        
+        if let error = error {
+            print("\(#function) Error performing initial fetch: \(error)")
         }
     }
 }
@@ -226,7 +269,7 @@ extension PhotoAlbumView {
     
     private func bboxString() -> String {
         // ensure bbox is bounded by minimum and maximums
-        if let latitude = annotation?.coordinate.latitude, let longitude = annotation?.coordinate.longitude {
+        if let latitude = pin?.latitude, let longitude = pin?.longitude {
             let minimumLon = max(longitude - Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.0)
             let minimumLat = max(latitude - Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLatRange.0)
             let maximumLon = min(longitude + Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLonRange.1)
