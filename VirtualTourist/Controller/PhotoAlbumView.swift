@@ -68,7 +68,9 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
                             self.imageURLArray.append(imageUrlString)
                         }
                     self.storePhotos(self.photos, forPin: self.pin!)
-                    self.newCollectionButton.isEnabled = true
+                    performUIUpdatesOnMain {
+                        self.newCollectionButton.isEnabled = true
+                    }
                 } else {
                     self.newCollectionButton.isEnabled = true
                 }
@@ -78,6 +80,10 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     
     @IBAction func newCollectionButttonPressed(_ sender: Any) {
         
+        for photos in fetchedResultsController.fetchedObjects! {
+            dataController?.viewContext.delete(photos)
+        }
+        try? dataController?.viewContext.save()
         newCollectionButton.isEnabled = false
         
         // need to disable the collection button pressing in this case***!!!
@@ -97,7 +103,9 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
                         self.imageURLArray.append(imageUrlString)
                     }
                 self.storePhotos(self.photos, forPin: self.pin!)
-                self.newCollectionButton.isEnabled = true
+                performUIUpdatesOnMain {
+                    self.newCollectionButton.isEnabled = true
+                }
             } else {
                 self.newCollectionButton.isEnabled = true
             }
