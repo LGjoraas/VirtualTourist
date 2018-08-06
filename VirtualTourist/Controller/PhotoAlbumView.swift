@@ -18,13 +18,20 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var noImagesLabel: UILabel!
     
+    
+    
     // MARK: Properties
+    var insertedIndices: [IndexPath]!
+    var updatedIndices: [IndexPath]!
+    var deletedIndices: [IndexPath]!
+    
     //var latitude: Double?
     //var longitude: Double?
     let latitudeSpan: Double = 2.0
     let longitudeSpan: Double = 2.0
     var annotation: MKPointAnnotation?
     var pin: Pin?
+    var photos: [Photo] = [] // array containing photos to store
     
     var dataController:DataController?
     var fetchedResultsController: NSFetchedResultsController<Photo>!
@@ -44,15 +51,26 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         guard let pin = pin else { return }
         setUpFetchedControllerWithPin(pin)
         
-        newCollectionButton.isEnabled = false
-        
         if let photos = pin.photos, photos.count == 0 {
-            getFlickrImages { (success) in
+            newCollectionButton.isEnabled = false
+            let latitude = Double(pin.latitude!)!
+            let longitude = Double(pin.longitude!)!
+            Client.sharedInstance.getFlickrImages(latitude: latitude, longitude: longitude) { (success, photosArray) in
                 if success == true {
-                    performUIUpdatesOnMain {
-                        self.collectionView.reloadData()
-                        self.newCollectionButton.isEnabled = true
-                    }
+                        for index in 0..<photosArray.count {
+                            let photoDictionary = photosArray[index] as [String: AnyObject]
+                            /* GUARD: Does our photo have a key for 'url_m'? */
+                            guard let imageUrlString = photoDictionary[Constants.FlickrResponseKeys.MediumURL] as? String else {
+                                print("Cannot find key '\(Constants.FlickrResponseKeys.MediumURL)' in \(photoDictionary)")
+                                return }
+                            let photo = Photo(imageUrl: imageUrlString, forPin: self.pin!, context: (self.dataController?.viewContext)!)
+                            self.photos.append(photo)
+                            self.imageURLArray.append(imageUrlString)
+                        }
+                    self.storePhotos(self.photos, forPin: self.pin!)
+                    self.newCollectionButton.isEnabled = true
+                } else {
+                    self.newCollectionButton.isEnabled = true
                 }
             }
         }
@@ -63,14 +81,28 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
         newCollectionButton.isEnabled = false
         
         // need to disable the collection button pressing in this case***!!!
-        getFlickrImages { (success) in
+        guard let pin = pin else { return }
+        let latitude = Double(pin.latitude!)!
+        let longitude = Double(pin.longitude!)!
+        Client.sharedInstance.getFlickrImages(latitude: latitude, longitude: longitude) { (success, photosArray) in
             if success == true {
-                performUIUpdatesOnMain {
-                    self.collectionView.reloadData()
-                    self.newCollectionButton.isEnabled = true
-                }
+                    for index in 0..<photosArray.count {
+                        let photoDictionary = photosArray[index] as [String: AnyObject]
+                        /* GUARD: Does our photo have a key for 'url_m'? */
+                        guard let imageUrlString = photoDictionary[Constants.FlickrResponseKeys.MediumURL] as? String else {
+                            print("Cannot find key '\(Constants.FlickrResponseKeys.MediumURL)' in \(photoDictionary)")
+                            return }
+                        let photo = Photo(imageUrl: imageUrlString, forPin: self.pin!, context: (self.dataController?.viewContext)!)
+                        self.photos.append(photo)
+                        self.imageURLArray.append(imageUrlString)
+                    }
+                self.storePhotos(self.photos, forPin: self.pin!)
+                self.newCollectionButton.isEnabled = true
+            } else {
+                self.newCollectionButton.isEnabled = true
             }
         }
+        collectionView.reloadData()
     }
     
     
@@ -116,10 +148,25 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
             print("\(#function) Error performing initial fetch: \(error)")
         }
     }
+    
+    private func storePhotos(_ photos: [Photo], forPin: Pin) {
+        for photo in photos {
+            performUIUpdatesOnMain {
+                if let url = photo.imageURL {
+                    _ = Photo(imageUrl: url, forPin: forPin, context: (self.dataController?.viewContext)!)
+                    do {
+                        try self.dataController?.viewContext.save()
+                    } catch {
+                        print("Unable to store photos to persistent store")
+                    }
+                }
+            }
+        }
+    }
 }
 
 // MARK: UICollectionView Functions
-extension PhotoAlbumView: UICollectionViewDelegate, UICollectionViewDataSource {
+/* extension PhotoAlbumView: UICollectionViewDelegate, UICollectionViewDataSource {
     
     
     // MARK: UICollectionViewDataSource
@@ -141,12 +188,27 @@ extension PhotoAlbumView: UICollectionViewDelegate, UICollectionViewDataSource {
         self.imageURLArray.remove(at: indexPath.row)
         collectionView.deleteItems(at: [indexPath])
     }
-}
+} */
 
 
 // MARK : Flickr functions
 
-extension PhotoAlbumView {
+/* extension PhotoAlbumView {
+    
+    private func storePhotos(_ photos: [Photo], forPin: Pin) {
+        for photo in photos {
+            performUIUpdatesOnMain {
+                if let url = photo.imageURL {
+                    _ = Photo(imageUrl: url, forPin: forPin, context: (self.dataController?.viewContext)!)
+                    do {
+                        try self.dataController?.viewContext.save()
+                    } catch {
+                        print("Unable to store photos to persistent store")
+                    }
+                }
+            }
+        }
+    }
     
     // function to load images from flickr to put into an array
     private func getFlickrImages(completionHander: @escaping (_ success: Bool) -> Void) {
@@ -240,8 +302,11 @@ extension PhotoAlbumView {
                 guard let imageUrlString = photoDictionary[Constants.FlickrResponseKeys.MediumURL] as? String else {
                     print("Cannot find key '\(Constants.FlickrResponseKeys.MediumURL)' in \(photoDictionary)")
                     return }
+                let photo = Photo(imageUrl: imageUrlString, forPin: self.pin!, context: (self.dataController?.viewContext)!)
+                self.photos.append(photo)
                 self.imageURLArray.append(imageUrlString)
             }
+            self.storePhotos(self.photos, forPin: self.pin!)
             completionHander(true)
             
         }
@@ -281,4 +346,4 @@ extension PhotoAlbumView {
             return "0,0,0,0"
         }
     }
-}
+} */
