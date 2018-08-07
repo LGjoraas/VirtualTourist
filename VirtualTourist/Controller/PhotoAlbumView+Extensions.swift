@@ -76,8 +76,7 @@ extension PhotoAlbumView: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let photo = fetchedResultsController.object(at: indexPath)
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! PhotoAlbumViewCell
-        let imageData = try? Data(contentsOf: URL(string: photo.imageURL!)!)
-        cell.imageView.image = UIImage(data: imageData!)
+        cell.imageView.image = UIImage(data: photo.imageData!)
         
         return cell
     }

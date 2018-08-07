@@ -14,10 +14,10 @@ extension Photo {
     
     static let name = "Photo"
     
-    convenience init(imageUrl: String, forPin: Pin, context: NSManagedObjectContext) {
+    convenience init(imageData: Data, forPin: Pin, context: NSManagedObjectContext) {
         if let ent = NSEntityDescription.entity(forEntityName: Photo.name, in: context) {
             self.init(entity: ent, insertInto: context)
-            self.imageURL = imageUrl
+            self.imageData = imageData 
             self.pin = forPin
         } else {
             fatalError("Unable to find Entity name!")

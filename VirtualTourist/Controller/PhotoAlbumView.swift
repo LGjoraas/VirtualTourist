@@ -60,7 +60,9 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
                             guard let imageUrlString = photoDictionary[Constants.FlickrResponseKeys.MediumURL] as? String else {
                                 print("Cannot find key '\(Constants.FlickrResponseKeys.MediumURL)' in \(photoDictionary)")
                                 return }
-                            let photo = Photo(imageUrl: imageUrlString, forPin: self.pin!, context: (self.dataController?.viewContext)!)
+                            let imageURL = URL(string: imageUrlString)
+                            let imageData = try? Data(contentsOf: imageURL!)
+                            let photo = Photo(imageData: imageData!, forPin: self.pin!, context: (self.dataController?.viewContext)!)
                             self.photos.append(photo)
                             self.imageURLArray.append(imageUrlString)
                         }
@@ -95,7 +97,9 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
                         guard let imageUrlString = photoDictionary[Constants.FlickrResponseKeys.MediumURL] as? String else {
                             print("Cannot find key '\(Constants.FlickrResponseKeys.MediumURL)' in \(photoDictionary)")
                             return }
-                        let photo = Photo(imageUrl: imageUrlString, forPin: self.pin!, context: (self.dataController?.viewContext)!)
+                        let imageURL = URL(string: imageUrlString)
+                        let imageData = try? Data(contentsOf: imageURL!)
+                        let photo = Photo(imageData: imageData!, forPin: self.pin!, context: (self.dataController?.viewContext)!)
                         self.photos.append(photo)
                         self.imageURLArray.append(imageUrlString)
                     }
@@ -154,8 +158,8 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     private func storePhotos(_ photos: [Photo], forPin: Pin) {
         for photo in photos {
             performUIUpdatesOnMain {
-                if let url = photo.imageURL {
-                    _ = Photo(imageUrl: url, forPin: forPin, context: (self.dataController?.viewContext)!)
+                if let imageData = photo.imageData {
+                    _ = Photo(imageData: imageData, forPin: forPin, context: (self.dataController?.viewContext)!)
                     do {
                         try self.dataController?.viewContext.save()
                     } catch {
