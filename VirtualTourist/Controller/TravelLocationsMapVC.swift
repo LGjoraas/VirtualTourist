@@ -43,7 +43,6 @@ class TravelLocationsMapVC: UIViewController, UIGestureRecognizerDelegate, MKMap
         // load pins that are in persistent store if any
         if let pins = loadAllPins() {
             showPins(pins)
-            print(pins)
         }
     }
     
@@ -63,23 +62,15 @@ class TravelLocationsMapVC: UIViewController, UIGestureRecognizerDelegate, MKMap
         
         let annotation = MKPointAnnotation()
         annotation.coordinate = touchCoordinate
-        print("add annotation")
         self.mapView.addAnnotation(annotation)
         
         // save pin to persistent store
-        //let pin = Pin(context: dataController.viewContext)
-        //pin.latitude = annotation.coordinate.latitude
-        //pin.longitude = annotation.coordinate.longitude
-        
         let pin = Pin(latitude: String(annotation.coordinate.latitude), longitude: String(annotation.coordinate.longitude), context: dataController.viewContext)
         do {
             try dataController.viewContext.save()
         } catch {
             print("Unable to save pin to persistent store")
         }
-        print("Pin = \(pin)")
-        
-        
     }
     
     // this function gets called whenever the region or zoom level/center of the map has changed. Save the map's region and span in this function to UserDefaults
@@ -94,16 +85,9 @@ class TravelLocationsMapVC: UIViewController, UIGestureRecognizerDelegate, MKMap
         // transfer data to PhotoAlbumView and then present it
         guard let albumVC = storyboard?.instantiateViewController(withIdentifier: "albumVC") as? PhotoAlbumView else { return }
         if let annotation = view.annotation {
-            //albumVC.latitude = annotation.coordinate.latitude
-            //albumVC.longitude = annotation.coordinate.longitude
-            //albumVC.annotation = annotation as? MKPointAnnotation
-            print("YES")
-            //print(annotation.coordinate.latitude)
-            //print(annotation.coordinate.longitude)
             let lat = String(annotation.coordinate.latitude)
             let long = String(annotation.coordinate.longitude)
             let pin = loadPin(latitude: lat, longitude: long)
-            print("PIN = \(pin)")
             albumVC.pin = pin
             albumVC.dataController = dataController
         }
@@ -125,13 +109,11 @@ class TravelLocationsMapVC: UIViewController, UIGestureRecognizerDelegate, MKMap
     }
     
     func fetchPin(_ predicate: NSPredicate, entityName: String, sorting: NSSortDescriptor? = nil) throws -> Pin? {
-        print(entityName)
         let fr = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
         fr.predicate = predicate
         if let sorting = sorting {
             fr.sortDescriptors = [sorting]
         }
-        print("fetch pin")  
         guard let pin = (try dataController.viewContext.fetch(fr) as! [Pin]).first else {
             return nil
         }
@@ -150,9 +132,6 @@ class TravelLocationsMapVC: UIViewController, UIGestureRecognizerDelegate, MKMap
     
     private func loadPin(latitude: String, longitude: String) -> Pin? {
         let predicate = NSPredicate(format: "latitude == %@ AND longitude == %@", latitude, longitude)
-        print("load Pin")
-        print(latitude)
-        print(longitude)
         var pin: Pin?
         do {
             try pin = fetchPin(predicate, entityName: Pin.name)
@@ -170,6 +149,5 @@ class TravelLocationsMapVC: UIViewController, UIGestureRecognizerDelegate, MKMap
             annotation.coordinate = CLLocationCoordinate2DMake(lat, lon)
             mapView.addAnnotation(annotation)
         }
-        //mapView.showAnnotations(mapView.annotations, animated: true)
     }
 }

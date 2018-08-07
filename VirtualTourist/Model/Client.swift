@@ -2,7 +2,7 @@
 //  Client.swift
 //  VirtualTourist
 //
-//  Created by Ryan Gjoraas on 8/5/18.
+//  Created by Lindsey Gjoraas on 8/5/18.
 //  Copyright © 2018 Developed by Gjoraas. All rights reserved.
 //
 
@@ -25,8 +25,6 @@ class Client {
             Constants.FlickrParameterKeys.BoundingBox: bboxString(latitude: latitude, longitude: longitude),
             Constants.FlickrParameterKeys.SafeSearch: Constants.FlickrParameterValues.UseSafeSearch,
             Constants.FlickrParameterKeys.Extras: Constants.FlickrParameterValues.MediumURL,
-            //Constants.FlickrParameterKeys.NumberOfPictures:
-            //Constants.FlickrParameterValues.PicturesToRetrieve,
             Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.ResponseFormat,
             Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback
         ]
@@ -68,7 +66,6 @@ class Client {
                 print("No data was returned by the request!")
                 return
             }
-            //print(data)
             
             // parse the data
             let parsedResult: [String:AnyObject]!
@@ -85,7 +82,7 @@ class Client {
                 print("Flickr API returned an error. See error code and message in \(parsedResult)")
                 return
             }
-            //print(parsedResult["photos"])
+
             /* GUARD: Is "photos" key in our result? */
             guard let photosDictionary = parsedResult[Constants.FlickrResponseKeys.Photos] as? [String:AnyObject] else {
                 print("Cannot find keys '\(Constants.FlickrResponseKeys.Photos)' in \(parsedResult)")
@@ -98,22 +95,13 @@ class Client {
                 return
             }
             
-            /*if photosArray.count == 0 {
-                performUIUpdatesOnMain {
-                    self.view.bringSubview(toFront: self.noImagesLabel)
-                }
-            }*/
             for index in 0..<photosArray.count {
                 let photoDictionary = photosArray[index] as [String: AnyObject]
                 /* GUARD: Does our photo have a key for 'url_m'? */
                 guard let imageUrlString = photoDictionary[Constants.FlickrResponseKeys.MediumURL] as? String else {
                     print("Cannot find key '\(Constants.FlickrResponseKeys.MediumURL)' in \(photoDictionary)")
                     return }
-                //let photo = Photo(imageUrl: imageUrlString, forPin: self.pin!, context: (self.dataController?.viewContext)!)
-                //self.photos.append(photo)
-                //self.imageURLArray.append(imageUrlString)
             }
-            //self.storePhotos(self.photos, forPin: self.pin!)
             completionHander(true, photosArray)
             
         }
