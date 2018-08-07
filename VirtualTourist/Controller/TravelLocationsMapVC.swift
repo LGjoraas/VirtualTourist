@@ -18,8 +18,6 @@ class TravelLocationsMapVC: UIViewController, UIGestureRecognizerDelegate, MKMap
     
     // MARK: Properties
     var dataController:DataController!
-    
-    //var fetchedResultsController:NSFetchedResultsController<Pin>!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -94,7 +92,7 @@ class TravelLocationsMapVC: UIViewController, UIGestureRecognizerDelegate, MKMap
         self.navigationController?.pushViewController(albumVC, animated: true)
     }
     
-    // MARK: Helper functions
+    // MARK: Helper functions - code below referenced from Antonio Carlos GitHUB VirtualTourist Project
     
     private func fetchAllPins(_ predicate: NSPredicate? = nil, entityName: String, sorting: NSSortDescriptor? = nil) throws -> [Pin]? {
         let fr = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)

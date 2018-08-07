@@ -40,9 +40,6 @@ class Client {
     
     private func getImagesFromFlickrBySearch(_ methodParameters: [String: AnyObject], completionHander: @escaping (_ success: Bool, _ photosArray: [[String: AnyObject]]) -> Void) {
         
-        // initialize imageURLArray to have zero elements
-        //self.imageURLArray = []
-        
         // create session and request
         let request = URLRequest(url: flickrURLFromParameters(methodParameters))
         
