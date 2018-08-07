@@ -19,6 +19,7 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     @IBOutlet weak var noImagesLabel: UILabel!
     
     
+    @IBOutlet weak var flowLayout: UICollectionViewFlowLayout!
     
     // MARK: Properties
     var insertedIndices: [IndexPath]!
@@ -43,6 +44,16 @@ class PhotoAlbumView: UIViewController, MKMapViewDelegate, NSFetchedResultsContr
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        // set up collection view layout
+        let space:CGFloat = 1.0
+        let dimensionWidth = (view.frame.size.width - (3 * space)) / 3.0
+        let dimensionHeight = (view.frame.size.width - (3 * space)) / 3.0
+        
+        flowLayout.minimumInteritemSpacing = space
+        flowLayout.minimumLineSpacing = space
+        flowLayout.itemSize = CGSize(width: dimensionWidth, height: dimensionHeight)
+        
+        
         // place pin on the mapview
         putPinOnMap()
         guard let pin = pin else { return }
